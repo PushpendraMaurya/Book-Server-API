@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+
+{% load static %}
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- css cdn -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-aFq/bzH65dt+w6FI2ooMVUpc+21e0SRygnTpmBvdBgSdnuTN7QbdgL+OapgHtvPp" crossorigin="anonymous">
+
+    <!-- js cdn  -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-qKXV1j0HvMUeCBQ+QVp7JcfGl760yU08IQ+GpUo5hlbpg51QRiuqHAJz8+BrxE/N"
+        crossorigin="anonymous"></script>
+
+    <!-- 
+    {% block title %}
+
+    {% endblock title %} -->
+
+    {% block css %}
+    <style>
+        .row {
+            width: 143%;
+        }
+
+        #search-btn {
+            color: red;
+        }
+
+        #input-btn {
+            color: blue;
+        }
+    </style>
+
+    {% endblock css %}
+
+</head>
+
+<body>
+    <!-- heading  -->
+    <div class="container my-2 p-2">
+        <div class="display-5 bg-secondary p-3 text-center rounded shadow"> Search Box </div>
+    </div>
+
+    <div class="container">
+        <div class="row">
+
+            <!-- left col-6  -->
+
+            <div class="col-6 my-1 p-2">
+
+                <label for="">Search by price</label>
+                <div class="">
+                    <span id="min_price">{{min_value.price__min}}</span>
+                    <input type="range" class="form-range w-75 pt-3" min="{{min_value.price__min}}"
+                        max="{{max_value.price__max}}" id="range_bar" value="{{max_value.price__max}}"
+                        onchange="GetData()">
+                    <span id="max_price">{{max_value.price__max}}</span>
+                </div>
+                <span id="show_price">Selected Price is {{max_value.price__max}} </span>
+            </div>
+
+            <!-- right col-6  -->
+
+            <div class="col-6">
+                <div class="row">
+                    <div class="col-6 w-75" style="display: inline-block;">
+                        <input type="search" name="search" id="search">
+
+                        <button class="text-danger" id="search-btn" onclick="GetData()">Search</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="conatiner w-75">
+            <div class="row" id="row">
+            </div>
+        </div>
+    </div>
+
+    
+
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.3.4/axios.min.js"
+        integrity="sha512-LUKzDoJKOLqnxGWWIBM4lzRBlxcva2ZTztO8bTcWPmDSpkErWx0bSP4pdsjNH8kiHAUPaT06UXcb+vOEZH+HpQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <!-- <script src="{% static 'range.js' %}"></script> -->
+    <script>
+        function GetData() {
+            var range_bar = document.getElementById('range_bar')
+            var show_price = document.getElementById('show_price')
+            var search = document.getElementById('search')
+            var row = document.getElementById('row')
+            var cols = ''
+
+            show_price.innerHTML = 'Selected Price is' + range_bar.value
+
+
+            var price = range_bar.value
+            var name = search.value
+
+            axios.get(`http://127.0.0.1:8000/api/?price=${price}&name=${name}`)
+                .then(function (resp){
+                    // console.log(resp.data) //make to display the code in console
+                    var arr = resp.data;  //data store in arr by resp
+
+                    for (var i = 0; i < arr.length; i++) {
+                        // console.log(arr[i].name)
+
+                        cols += `
+                            <div class="col-3 m-3">
+                                <div class="card" style="width: 18rem;">
+                                    <img src="${arr[i].image}" class="card-img-top" alt="No Image">
+                                    <div class="card-body">
+                                        <h5 class="card-title">${arr[i].name}</h5>
+                                        <p class="card-text">${arr[i].desc}</p>
+                                        <p class="card-text"> Price is :- ${arr[i].price}</p>
+                                        <p class="card-text"> Author :- ${arr[i].author}</p>
+
+                                    </div>
+                                </div>
+                            </div>
+
+                            `
+                    }
+                    row.innerHTML = cols;
+                    search.value = '';
+
+                })
+                .catch(function () {
+                    alert('Error Api')
+                })
+            //    console.log(range_bar.value)
+            //    console.log(search.value)
+        }
+        GetData()  //direct function used below to call on the spot load page that time load js file aslo .
+    </script>
+
+</body>
+
+</html>
